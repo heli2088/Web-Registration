@@ -1,0 +1,105 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+@*<button class="btn btn-primary" id="get-clients">Get Clients</button> *@
+<button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#client-modal">New Client</button>
+<ul class="results mt-3"></ul>
+
+  <table class="table" >
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Gender</th>
+                        <th>Selected event days</th>
+                        <th>Additional Request</th>
+                        <th>Date registered</th>
+                        
+                    </tr>
+                </thead>
+                <tbody id="tblbody"></tbody>
+            </table>
+
+<partial name="_ClientModal" model="new Client()"/>
+
+
+@section scripts{
+    <script>
+        const list = document.querySelector('ul.results');
+        //const getAll = document.getElementById('get-clients');
+        const save = document.getElementById('save-client');
+
+        //getAll.addEventListener('click', () => {
+        //    showClients();
+        //});
+        save.addEventListener('click', () => {
+            
+            
+            showClients();
+            saveClient();
+        });
+
+        const showClients = () => {
+            list.innerHTML = '';
+            fetch("/api/clients")
+            .then(response => response.json())
+            .then(clients => {
+                for(let i = 0;i < clients.length;i++){
+                   
+                    var tablerow = '';
+
+                        tablerow = "<tr>"
+                                  + "<td>" + clients[i].id + "</td>"
+                                  + "<td>" + clients[i].name + "</td>"
+                                  + "<td>" + clients[i].email+ "</td>"
+                                  + "<td>" + clients[i].gender+ "</td>"
+                                  + "<td>" + clients[i].selectedeventdays+ "</td>"
+                                  + "<td>" + clients[i].additionalRequest+ "</td>"
+                                  + "<td>" + clients[i].dateregistered+ "</td>"
+                                  + "</tr>";
+                       $("#tblbody").append(tablerow);
+
+
+                }
+            });
+        }
+
+        const getClient = (id) => {
+            fetch(`/api/client/${id}`)
+            .then(response => response.json())
+            .then(client => {
+                document.getElementById('Id').value = client.id;
+                document.getElementById('Name').value = client.name;
+                document.getElementById('Email').value = client.email; 
+                document.getElementById('Gender').value = client.gender;
+                document.getElementById('Selectedeventdays').value = client.selectedeventdays; 
+                document.getElementById('AdditionalRequest').value = client.additionalRequest; 
+                document.getElementById('Dateregistered').value = client.dateregistered; 
+            });
+        }
+
+            const saveClient = () => {
+                const model = {
+                    id:  document.getElementById('Id').value,
+                    name: document.getElementById('Name').value,
+                    email: document.getElementById('Email').value,
+                    gender: document.getElementById('Gender').value,
+                    selectedeventdays: document.getElementById('Selectedeventdays').value,
+                    additionalRequest: document.getElementById('AdditionalRequest').value,
+                    dateregistered: document.getElementById('Dateregistered').value,
+                };
+                fetch('/api/save',  {  
+                    method: model.id > 0 ? 'put' : 'post',
+                    headers: {
+                        "Content-type": "application/json",
+                    },
+                    body: JSON.stringify(model)
+                });
+            }
+    </script>
+
+
+   }  
